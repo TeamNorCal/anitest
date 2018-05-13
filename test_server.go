@@ -35,7 +35,8 @@ type IndexData struct {
 	Universes []Universe
 }
 
-var sr = animation.NewSequenceRunner([]uint{30, 60})
+var universeSizes = []uint{30, 60, 15}
+var sr = animation.NewSequenceRunner(universeSizes)
 
 // NTimes is a custom template function that creates a slice of nothing to range across
 func NTimes(count int) []struct{} {
@@ -44,14 +45,22 @@ func NTimes(count int) []struct{} {
 
 func writeFrame(w io.Writer) {
 	sr.ProcessFrame(time.Now())
-	data := Response{[]UniverseData{UniverseData{0, sr.UniverseData(0)}, UniverseData{1, sr.UniverseData(1)}}}
+	datas := make([]UniverseData, 0)
+	for id := range universeSizes {
+		datas = append(datas, UniverseData{id, sr.UniverseData(uint(id))})
+	}
+	resp := Response{datas}
 	//			[]color.RGBA{color.RGBA{0xff, 0x00, 0x00, 0xff}, color.RGBA{0x00, 0xff, 0x00, 0xff}, color.RGBA{0x00, 0x00, 0xff, 0xff}}}
-	ser, _ := json.Marshal(data)
+	ser, _ := json.Marshal(resp)
 	w.Write(ser)
 }
 
 func getIndexData() IndexData {
-	return IndexData{[]Universe{Universe{0, 30}, Universe{1, 60}}}
+	unis := make([]Universe, 0)
+	for id, size := range universeSizes {
+		unis = append(unis, Universe{id, int(size)})
+	}
+	return IndexData{unis}
 }
 
 func renderIndex(w http.ResponseWriter, r *http.Request) {
