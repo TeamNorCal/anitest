@@ -1,0 +1,22 @@
+{{define "index"}}<!DOCTYPE html>
+<html>
+<head>
+  <title>Animation Simulator</title>
+  <link rel="stylesheet" type="text/css" href="static/style.css">
+</head>
+<body>
+  <h1>Animation!</h1>
+  {{range .Universes}}
+    {{template "window" .}}
+  {{end}}
+
+  <div class="buttons">
+    <button id="startButton">Start</button>
+    <button id="stopButton">Stop</button>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="static/animate.js"></script>
+</body>
+</html>
+{{end}}

@@ -1,0 +1,7 @@
+{{define "window"}}
+<div class="animationContainer" id="universe{{.ID}}">
+  {{range ntimes .Size}}
+    {{template "pixel"}}
+  {{end}}
+</div>
+{{end}}
