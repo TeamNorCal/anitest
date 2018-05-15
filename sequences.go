@@ -37,3 +37,18 @@ func CreateTest1() *animation.Sequence {
 
 	return seq
 }
+
+// CreateTest2 creates a sequence that runs animations in order across multiple universes
+func CreateTest2() *animation.Sequence {
+	s1 := animation.Step{UniverseID: 0, Effect: animation.NewInterpolateSolidHexRGB(0x8d209f, 0x03f164, 2*time.Second)}
+	s2 := animation.Step{UniverseID: 1, Effect: animation.NewInterpolateSolidHexRGB(0x848953, 0x194847, 2*time.Second)}
+	s3 := animation.Step{UniverseID: 2, Effect: animation.NewInterpolateSolidHexRGB(0xabcdef, 0x654321, 2*time.Second)}
+
+	seq := animation.NewSequence()
+	seq.AddInitialStep("s1", &s1)
+	seq.AddStep("s2", &s2)
+	seq.AddStep("s3", &s3)
+	seq.CreateStepCycle("s1", "s2", "s3")
+
+	return seq
+}
