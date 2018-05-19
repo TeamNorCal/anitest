@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"image/color"
 	"io"
+	"math/rand"
 	"net/http"
 	"time"
 
@@ -35,8 +36,34 @@ type IndexData struct {
 	Universes []Universe
 }
 
-var universeSizes = []uint{30, 60, 15}
-var sr = animation.NewSequenceRunner(universeSizes)
+// var universeSizes = []uint{30, 60, 15}
+var universeSizes = []uint{30, 30, 30, 30, 30, 30, 30, 30}
+
+// var sr = animation.NewSequenceRunner(universeSizes)
+var p = animation.NewPortal()
+var status *animation.PortalStatus
+
+func initPortalStatus(resoLevels []int) {
+	resoStatus := make([]animation.ResonatorStatus, 8)
+	for idx := range resoStatus {
+		resoStatus[idx] = animation.ResonatorStatus{
+			Health: 100.0,
+			Level:  resoLevels[idx],
+		}
+	}
+
+	status = &animation.PortalStatus{
+		Faction:    animation.ENL,
+		Level:      8,
+		Resonators: resoStatus,
+	}
+}
+
+func randomizeAResonator() {
+	resoNum := rand.Intn(8)
+	resoLevel := rand.Intn(9)
+	status.Resonators[resoNum].Level = resoLevel
+}
 
 // NTimes is a custom template function that creates a slice of nothing to range across
 func NTimes(count int) []struct{} {
@@ -44,10 +71,12 @@ func NTimes(count int) []struct{} {
 }
 
 func writeFrame(w io.Writer) {
-	sr.ProcessFrame(time.Now())
+	// sr.ProcessFrame(time.Now())
+	frameData := p.GetFrame(time.Now())
 	datas := make([]UniverseData, 0)
 	for id := range universeSizes {
-		datas = append(datas, UniverseData{id, sr.UniverseData(uint(id))})
+		// datas = append(datas, UniverseData{id, sr.UniverseData(uint(id))})
+		datas = append(datas, UniverseData{id, frameData[id].Data})
 	}
 	resp := Response{datas}
 	//			[]color.RGBA{color.RGBA{0xff, 0x00, 0x00, 0xff}, color.RGBA{0x00, 0xff, 0x00, 0xff}, color.RGBA{0x00, 0x00, 0xff, 0xff}}}
@@ -70,7 +99,19 @@ func renderIndex(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/init", func(w http.ResponseWriter, r *http.Request) {
-		sr.InitSequence(CreateTest3(), time.Now())
+		// sr.InitSequence(CreateTest3(), time.Now())
+		initPortalStatus([]int{1, 2, 3, 4, 5, 6, 7, 8})
+		p.UpdateStatus(status)
+		ticker := time.NewTicker(5 * time.Second)
+		go func() {
+			for {
+				select {
+				case <-ticker.C:
+					randomizeAResonator()
+					p.UpdateStatus(status)
+				}
+			}
+		}()
 		//		writeFrame(w)
 	})
 	http.HandleFunc("/getFrame", func(w http.ResponseWriter, r *http.Request) {

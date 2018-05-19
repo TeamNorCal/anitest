@@ -6,9 +6,11 @@
 </head>
 <body>
   <h1>Animation!</h1>
-  {{range .Universes}}
-    {{template "window" .}}
-  {{end}}
+  <div id="resoContainer">
+    {{range .Universes}}
+      {{template "window" .}}
+    {{end}}
+  </div>
 
   <div class="buttons">
     <button id="startButton">Start</button>
