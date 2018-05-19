@@ -5,12 +5,19 @@
   <link rel="stylesheet" type="text/css" href="static/style.css">
 </head>
 <body>
-  <h1>Animation!</h1>
-  <div id="resoContainer">
-    {{range .Universes}}
-      {{template "window" .}}
-    {{end}}
-  </div>
+  <h1>Ceci n'est pas une phare</h1>
+  <div id="portalContainer">
+    <div id="towerContainer">
+      {{range .Tower}}
+        {{template "window" .}}
+      {{end}}
+    </div>
+    <div id="resoContainer">
+      {{range .Resonators}}
+        {{template "window" .}}
+      {{end}}
+    </div>
+</div>
 
   <div class="buttons">
     <button id="startButton">Start</button>

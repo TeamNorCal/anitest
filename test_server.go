@@ -33,15 +33,24 @@ type Universe struct {
 
 // IndexData contains data to populate the index template
 type IndexData struct {
-	Universes []Universe
+	// Universes []Universe
+	Resonators []Universe
+	Tower      []Universe
 }
 
 // var universeSizes = []uint{30, 60, 15}
-var universeSizes = []uint{30, 30, 30, 30, 30, 30, 30, 30}
+var universeSizes []uint //= []uint{30, 30, 30, 30, 30, 30, 30, 30}
 
 // var sr = animation.NewSequenceRunner(universeSizes)
 var p = animation.NewPortal()
 var status *animation.PortalStatus
+
+func init() {
+	universeSizes = make([]uint, 24)
+	for idx := 0; idx < 24; idx++ {
+		universeSizes[idx] = 30
+	}
+}
 
 func initPortalStatus(resoLevels []int) {
 	resoStatus := make([]animation.ResonatorStatus, 8)
@@ -73,9 +82,8 @@ func NTimes(count int) []struct{} {
 func writeFrame(w io.Writer) {
 	// sr.ProcessFrame(time.Now())
 	frameData := p.GetFrame(time.Now())
-	datas := make([]UniverseData, 0)
+	datas := make([]UniverseData, 0, 24)
 	for id := range universeSizes {
-		// datas = append(datas, UniverseData{id, sr.UniverseData(uint(id))})
 		datas = append(datas, UniverseData{id, frameData[id].Data})
 	}
 	resp := Response{datas}
@@ -85,11 +93,16 @@ func writeFrame(w io.Writer) {
 }
 
 func getIndexData() IndexData {
-	unis := make([]Universe, 0)
+	resos := make([]Universe, 0)
+	tower := make([]Universe, 0)
 	for id, size := range universeSizes {
-		unis = append(unis, Universe{id, int(size)})
+		if id < 8 {
+			resos = append(resos, Universe{id, int(size)})
+		} else {
+			tower = append(tower, Universe{id, int(size)})
+		}
 	}
-	return IndexData{unis}
+	return IndexData{Resonators: resos, Tower: tower}
 }
 
 func renderIndex(w http.ResponseWriter, r *http.Request) {
