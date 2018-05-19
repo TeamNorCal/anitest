@@ -70,7 +70,7 @@ func renderIndex(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/init", func(w http.ResponseWriter, r *http.Request) {
-		sr.InitSequence(CreateTest1(), time.Now())
+		sr.InitSequence(CreateTest3(), time.Now())
 		//		writeFrame(w)
 	})
 	http.HandleFunc("/getFrame", func(w http.ResponseWriter, r *http.Request) {
