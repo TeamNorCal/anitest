@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"image/color"
 	"io"
@@ -80,7 +81,13 @@ func randomizeLevel() {
 }
 
 func randomizeFaction() {
-	status.Faction = animation.Faction(rand.Intn(3))
+	// Generate a random faction that's different from the current one
+	f := animation.Faction(rand.Intn(2))
+	if f >= status.Faction {
+		f++
+	}
+	fmt.Printf("(TEST) Faction Change: %v -> %v\n", status.Faction, f)
+	status.Faction = f
 }
 
 // NTimes is a custom template function that creates a slice of nothing to range across
