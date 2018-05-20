@@ -44,6 +44,7 @@ var universeSizes []uint //= []uint{30, 30, 30, 30, 30, 30, 30, 30}
 // var sr = animation.NewSequenceRunner(universeSizes)
 var p = animation.NewPortal()
 var status *animation.PortalStatus
+var tickCount = 0
 
 func init() {
 	universeSizes = make([]uint, 24)
@@ -76,6 +77,10 @@ func randomizeAResonator() {
 
 func randomizeLevel() {
 	status.Level = rand.Float32() * 8.0
+}
+
+func randomizeFaction() {
+	status.Faction = animation.Faction(rand.Intn(3))
 }
 
 // NTimes is a custom template function that creates a slice of nothing to range across
@@ -127,6 +132,11 @@ func main() {
 				case <-ticker.C:
 					randomizeAResonator()
 					randomizeLevel()
+					tickCount++
+					if tickCount >= 3 {
+						tickCount = 0
+						randomizeFaction()
+					}
 					p.UpdateStatus(status)
 				}
 			}
