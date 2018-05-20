@@ -13,6 +13,7 @@ $(document).ready(function() {
 });
 
 var anim = {
+  pending: false,
   processFrame: function(frame) {
     frame.Universes.forEach(function(universe) {
       var data = universe.Data;
@@ -28,11 +29,17 @@ var anim = {
       console.log("Starting");
       anim.timer = setInterval(function() {
         //console.log("Getting frame");
-        $.getJSON("/getFrame", function(frame) {
-          //console.log("Processing frame data", frame.Data[0]);
-          anim.processFrame(frame);
-        });
-      });
+        if (anim.pending) {
+          console.log("Request still pending on frame tick; skipping");
+        } else {
+          anim.pending = true;
+          $.getJSON("/getFrame", function(frame) {
+            //console.log("Processing frame data", frame.Data[0]);
+            anim.processFrame(frame);
+            anim.pending = false;
+          });
+        }
+      }, 33);
     }
   },
   stopAnimating: function() {
