@@ -74,6 +74,10 @@ func randomizeAResonator() {
 	status.Resonators[resoNum].Level = resoLevel
 }
 
+func randomizeLevel() {
+	status.Level = rand.Float32() * 8.0
+}
+
 // NTimes is a custom template function that creates a slice of nothing to range across
 func NTimes(count int) []struct{} {
 	return make([]struct{}, count)
@@ -99,7 +103,8 @@ func getIndexData() IndexData {
 		if id < 8 {
 			resos = append(resos, Universe{id, int(size)})
 		} else {
-			tower = append(tower, Universe{id, int(size)})
+			// Build these in reverse order so first level is at the bottom in the simulator
+			tower = append([]Universe{Universe{id, int(size)}}, tower...)
 		}
 	}
 	return IndexData{Resonators: resos, Tower: tower}
@@ -121,6 +126,7 @@ func main() {
 				select {
 				case <-ticker.C:
 					randomizeAResonator()
+					randomizeLevel()
 					p.UpdateStatus(status)
 				}
 			}
