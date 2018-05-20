@@ -14,6 +14,7 @@ $(document).ready(function() {
 
 var anim = {
   pending: false,
+  missedFrameCount: 0,
   processFrame: function(frame) {
     frame.Universes.forEach(function(universe) {
       var data = universe.Data;
@@ -31,6 +32,8 @@ var anim = {
         //console.log("Getting frame");
         if (anim.pending) {
           console.log("Request still pending on frame tick; skipping");
+          anim.missedFrameCount++;
+          $("#missedFrameCount").text(anim.missedFrameCount);
         } else {
           anim.pending = true;
           $.getJSON("/getFrame", function(frame) {
