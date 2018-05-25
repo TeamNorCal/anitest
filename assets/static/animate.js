@@ -2,8 +2,16 @@ $(document).ready(function() {
   $("#startButton").on("click", anim.startAnimating);
   $("#stopButton").on("click", anim.stopAnimating);
 
-  console.log("Calling init");
-  $.ajax("/init")
+  var urlParams = new URLSearchParams(window.location.search);
+  var initUrl;
+  if (urlParams.has('local')) {
+    console.log("Calling init (local)");
+    initUrl = "/init?local=true";
+  } else {
+    console.log("Calling init");
+    initUrl = "/init";
+  }
+  $.ajax(initUrl)
   .done(function(data, status) {
     anim.startAnimating();
   })

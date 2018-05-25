@@ -8,6 +8,7 @@ import (
 	"io"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/TeamNorCal/animation"
@@ -129,29 +130,66 @@ func renderIndex(w http.ResponseWriter, r *http.Request) {
 	t.ExecuteTemplate(w, "index", getIndexData())
 }
 
+func initLocal() {
+	// sr.InitSequence(CreateTest3(), time.Now())
+	initPortalStatus([]int{1, 2, 3, 4, 5, 6, 7, 8})
+	p.UpdateStatus(status)
+	ticker := time.NewTicker(5 * time.Second)
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				randomizeAResonator()
+				randomizeLevel()
+				tickCount++
+				if tickCount >= 3 {
+					tickCount = 0
+					randomizeFaction()
+				}
+				p.UpdateStatus(status)
+			}
+		}
+	}()
+	//		writeFrame(w)
+}
+
+// Initialize stream of data from web simulator endpoint
+func initWeb() {
+	url, err := url.Parse("http://operation-wigwam.ingress.com:8080/v1/test-info")
+	if err != nil {
+		fmt.Println("Error parsing URL", err)
+		return
+	}
+	tthu := NewTecthulu(*url, true, nil, nil)
+	ticker := time.NewTicker(5 * time.Second)
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				status, errs := tthu.checkPortal()
+
+				if errs != nil {
+					fmt.Println("Error checking portal", errs)
+					continue
+				}
+
+				p.UpdateFromCanonicalStatus(&status.Status)
+			}
+		}
+	}()
+}
+
 func main() {
 	fmt.Println("Initializing...")
 	http.HandleFunc("/init", func(w http.ResponseWriter, r *http.Request) {
-		// sr.InitSequence(CreateTest3(), time.Now())
-		initPortalStatus([]int{1, 2, 3, 4, 5, 6, 7, 8})
-		p.UpdateStatus(status)
-		ticker := time.NewTicker(5 * time.Second)
-		go func() {
-			for {
-				select {
-				case <-ticker.C:
-					randomizeAResonator()
-					randomizeLevel()
-					tickCount++
-					if tickCount >= 3 {
-						tickCount = 0
-						randomizeFaction()
-					}
-					p.UpdateStatus(status)
-				}
-			}
-		}()
-		//		writeFrame(w)
+		local := r.FormValue("local")
+		if local == "true" {
+			fmt.Println("Generating values locally")
+			initLocal()
+		} else {
+			fmt.Println("Getting values from web endpoint")
+			initWeb()
+		}
 	})
 	http.HandleFunc("/getFrame", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "application/json; charset=UTF-8")
