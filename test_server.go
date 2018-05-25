@@ -66,6 +66,7 @@ func initPortalStatus(resoLevels []int) {
 	status = &animation.PortalStatus{
 		Faction:    animation.ENL,
 		Level:      8,
+		Health:     100.0,
 		Resonators: resoStatus,
 	}
 }
@@ -78,6 +79,7 @@ func randomizeAResonator() {
 
 func randomizeLevel() {
 	status.Level = rand.Float32() * 8.0
+	status.Health = rand.Float32() * 100.0
 }
 
 func randomizeFaction() {
@@ -128,6 +130,7 @@ func renderIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	fmt.Println("Initializing...")
 	http.HandleFunc("/init", func(w http.ResponseWriter, r *http.Request) {
 		// sr.InitSequence(CreateTest3(), time.Now())
 		initPortalStatus([]int{1, 2, 3, 4, 5, 6, 7, 8})
